@@ -1,0 +1,74 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #17110e;
+  --color-surface: #211914;
+  --color-surface-2: #2b211b;
+  --color-line: rgba(246, 235, 220, 0.09);
+  --color-cream: #f6ebdc;
+  --color-muted: #a99b8d;
+  --color-accent: #c98b6e;
+  --color-accent-deep: #a8624a;
+  --color-gold: #e6bd82;
+  --color-rose: #efb4ab;
+  --color-ok: #8fc79a;
+  --color-bad: #e58b82;
+  --font-sans: "Manrope", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Playfair Display", Georgia, serif;
+}
+
+html, body, #root { height: 100%; }
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-cream);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
+  user-select: none;
+}
+input, textarea { user-select: text; font-family: inherit; }
+button { font-family: inherit; cursor: pointer; }
+* { scrollbar-width: none; }
+*::-webkit-scrollbar { display: none; }
+
+.glass {
+  background: rgba(33, 25, 20, 0.72);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid var(--color-line);
+}
+.safe-top { padding-top: max(env(safe-area-inset-top), var(--tg-content-safe-area-inset-top, 0px)); }
+.safe-bottom { padding-bottom: max(env(safe-area-inset-bottom), 12px); }
+.field {
+  width: 100%;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-line);
+  border-radius: 14px;
+  padding: 12px 14px;
+  color: var(--color-cream);
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.field:focus { border-color: var(--color-accent); }
+.field::placeholder { color: var(--color-muted); }
+.btn-primary {
+  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-deep) 100%);
+  color: #1b110c;
+  font-weight: 800;
+  border-radius: 16px;
+  border: 0;
+  padding: 15px 18px;
+  font-size: 16px;
+  box-shadow: 0 8px 24px -10px rgba(201, 139, 110, 0.7);
+}
+.btn-primary:disabled { opacity: 0.45; box-shadow: none; }
+.skeleton {
+  background: linear-gradient(100deg, var(--color-surface) 30%, var(--color-surface-2) 50%, var(--color-surface) 70%);
+  background-size: 200% 100%;
+  animation: shimmer 1.3s infinite linear;
+}
+@keyframes shimmer { to { background-position: -200% 0; } }
+input[type="range"] { accent-color: var(--color-accent); }

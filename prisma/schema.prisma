@@ -1,0 +1,212 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum OrderStatus {
+  PENDING
+  PREPARING
+  READY
+  ON_THE_WAY
+  COMPLETED
+  CANCELLED
+}
+
+enum Fulfillment {
+  DINE_IN
+  TAKEAWAY
+  DELIVERY
+}
+
+enum PaymentMethod {
+  CLICK
+  PAYME
+  UZUM
+  CASH
+  TERMINAL
+}
+
+enum PaymentStatus {
+  UNPAID
+  PAID
+}
+
+enum AddonKind {
+  MILK
+  EXTRA
+}
+
+enum PromoType {
+  PERCENT
+  FIXED
+}
+
+model User {
+  id          Int       @id @default(autoincrement())
+  telegramId  BigInt    @unique
+  firstName   String
+  lastName    String?
+  username    String?
+  photoUrl    String?
+  language    String    @default("uz")
+  phone       String?
+  bonusPoints Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  addresses   Address[]
+  orders      Order[]
+  favorites   Favorite[]
+}
+
+model Address {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  label     String
+  address   String
+  lat       Float?
+  lng       Float?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Category {
+  id        Int       @id @default(autoincrement())
+  slug      String    @unique
+  nameUz    String
+  nameRu    String
+  icon      String    @default("🍽️")
+  sortOrder Int       @default(0)
+  isActive  Boolean   @default(true)
+  products  Product[]
+}
+
+model Product {
+  id          Int              @id @default(autoincrement())
+  externalId  String?          @unique
+  categoryId  Int
+  category    Category         @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  nameUz      String
+  nameRu      String
+  descUz      String           @default("")
+  descRu      String           @default("")
+  price       Int
+  imageUrl    String?
+  tags        String[]         @default([])
+  isAvailable Boolean          @default(true)
+  allowMilk   Boolean          @default(false)
+  allowSugar  Boolean          @default(false)
+  sortOrder   Int              @default(0)
+  variants    ProductVariant[]
+  favorites   Favorite[]
+  orderItems  OrderItem[]
+
+  @@index([categoryId])
+}
+
+model ProductVariant {
+  id        Int     @id @default(autoincrement())
+  productId Int
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  label     String
+  price     Int
+  sortOrder Int     @default(0)
+
+  @@index([productId])
+}
+
+model Addon {
+  id            Int       @id @default(autoincrement())
+  kind          AddonKind
+  nameUz        String
+  nameRu        String
+  price         Int
+  categorySlugs String[]  @default([])
+  isActive      Boolean   @default(true)
+  sortOrder     Int       @default(0)
+}
+
+model Favorite {
+  userId    Int
+  productId Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([userId, productId])
+}
+
+model PromoCode {
+  id        Int       @id @default(autoincrement())
+  code      String    @unique
+  type      PromoType
+  value     Int
+  minOrder  Int       @default(0)
+  maxUses   Int?
+  usedCount Int       @default(0)
+  isActive  Boolean   @default(true)
+  expiresAt DateTime?
+  createdAt DateTime  @default(now())
+}
+
+model Setting {
+  key   String @id
+  value String
+}
+
+model Order {
+  id               Int           @id @default(autoincrement())
+  userId           Int
+  user             User          @relation(fields: [userId], references: [id])
+  status           OrderStatus   @default(PENDING)
+  fulfillment      Fulfillment
+  tableNumber      String?
+  scheduledFor     DateTime?
+  address          String?
+  lat              Float?
+  lng              Float?
+  phone            String?
+  note             String?
+  paymentMethod    PaymentMethod
+  paymentStatus    PaymentStatus @default(UNPAID)
+  subtotal         Int
+  discount         Int           @default(0)
+  bonusUsed        Int           @default(0)
+  bonusEarned      Int           @default(0)
+  deliveryFee      Int           @default(0)
+  total            Int
+  promoCode        String?
+  estimatedMinutes Int           @default(15)
+  items            OrderItem[]
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model OrderItem {
+  id           Int      @id @default(autoincrement())
+  orderId      Int
+  order        Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId    Int?
+  product      Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  nameUz       String
+  nameRu       String
+  imageUrl     String?
+  variantLabel String?
+  // { variantId, milk: {id,nameUz,nameRu,price}, sugar, addons: [{id,nameUz,nameRu,price}] }
+  options      Json     @default("{}")
+  quantity     Int
+  unitPrice    Int
+  lineTotal    Int
+
+  @@index([orderId])
+}

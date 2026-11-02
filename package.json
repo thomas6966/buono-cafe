@@ -1,0 +1,31 @@
+{
+  "name": "buono-cafe",
+  "version": "1.0.0",
+  "private": true,
+  "description": "BUONO Cafe - Telegram Mini App, Bot & API",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "node --watch src/index.js",
+    "start": "node src/index.js",
+    "db:push": "prisma db push",
+    "db:seed": "node prisma/seed.js",
+    "db:studio": "prisma studio",
+    "client:dev": "npm --prefix client run dev",
+    "client:build": "npm --prefix client run build",
+    "admin:dev": "npm --prefix admin run dev",
+    "install:all": "npm install && npm --prefix client install && npm --prefix admin install",
+    "tunnel": "node scripts/tunnel.js"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.19.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
+    "grammy": "^1.30.0",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1"
+  },
+  "devDependencies": {
+    "prisma": "^6.19.0"
+  }
+}
