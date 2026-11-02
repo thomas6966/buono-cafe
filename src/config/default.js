@@ -7,11 +7,11 @@ require('dotenv').config({ path: path.join(__dirname, '..', '..', '.env') });
 process.env.TZ = process.env.TZ || 'Asia/Tashkent';
 
 const required = ['DATABASE_URL', 'BOT_TOKEN', 'JWT_SECRET', 'ADMIN_PASSWORD'];
-for (const key of required) {
-  if (!process.env[key]) {
-    console.error(`[config] Missing env variable: ${key}`);
-    process.exit(1);
-  }
+const missing = required.filter((key) => !process.env[key]);
+if (missing.length) {
+  console.error(`[config] Missing env variables: ${missing.join(', ')}`);
+  console.error('[config] Add them in Render > your service > Environment (or in the local .env file).');
+  process.exit(1);
 }
 
 const env = process.env.NODE_ENV || 'development';
