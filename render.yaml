@@ -1,7 +1,7 @@
 # Render Blueprint: New + > Blueprint > pick this repo. Render asks for every value marked "sync: false".
 services:
   - type: web
-    name: buono-cafe-api
+    name: buono-cafe
     runtime: node
     region: ohio # same region as the Neon database (us-east-2): fastest queries
     plan: free

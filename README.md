@@ -38,7 +38,7 @@ Tartib muhim: avval backend, keyin Mini App, keyin ikkalasini bir-biriga ulash.
 | `ADMIN_PASSWORD` | Kamida 12 belgili yangi kuchli parol |
 | `WEBAPP_URL`, `CORS_ORIGINS` | Hozircha bo'sh qoldiring (3-qadamda to'ldirasiz) |
 
-3. Deploy tugagach manzilni oling: `https://buono-cafe-api.onrender.com`. `/api/health` ochilsa, tayyor.
+3. Deploy tugagach manzilni oling: `https://buono-cafe.onrender.com`. `/api/health` ochilsa, tayyor.
 
 ### 2. Mini App: Vercel
 
