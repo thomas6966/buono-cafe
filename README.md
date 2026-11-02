@@ -55,12 +55,19 @@ Render > Environment:
 
 Render o'zi qayta ishga tushadi. Bot webhook'ni o'zi o'rnatadi va `/start` dagi "Menyuni ochish" tugmasi + chat menyusini yangilaydi.
 
-### 4. Admin dashboard (ixtiyoriy, Vercel'da)
+### 4. Admin dashboard
 
-Vercel'da yana bitta loyiha: **Root Directory: `admin`**, o'zgaruvchilar:
-`VITE_API_URL` = Render manzili, `VITE_CLIENT_URL` = Mini App manzili. Admin manzilini Render'dagi `CORS_ORIGINS` ga qo'shing.
-Admin internetda ochiq bo'lgani uchun kuchli `ADMIN_PASSWORD` shart (login urinishlari cheklangan).
-Lokal ishlatmoqchi bo'lsangiz: `admin/.env.local` ichiga o'sha ikkita o'zgaruvchini yozing va `npm run admin:dev`.
+Admin Mini App bilan bitta Vercel loyihasida, **`/admin/`** manzilida turadi: `https://buono-cafe.vercel.app/admin/`.
+Alohida loyiha va qo'shimcha CORS sozlamasi kerak emas. Telefonda ham ochiladi.
+
+Admin kodini o'zgartirsangiz:
+```bash
+npm run admin:publish   # admin'ni client/public/admin ga yig'adi
+```
+so'ng Mini App loyihasini Vercel'da qayta deploy qiling.
+
+Admin internetda ochiq bo'lgani uchun kuchli `ADMIN_PASSWORD` shart (login urinishlari cheklangan, sahifa qidiruv tizimlaridan yashirilgan).
+Kompyuterda jonli serverga ulangan holda ochish: `start-admin.bat` (http://localhost:5174).
 
 ### Render bepul tarifi haqida
 

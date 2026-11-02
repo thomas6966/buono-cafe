@@ -16,7 +16,8 @@
     "install:all": "npm install && npm --prefix client install && npm --prefix admin install",
     "tunnel": "node scripts/tunnel.js",
     "build": "prisma generate",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "admin:publish": "node scripts/publish-admin.js"
   },
   "dependencies": {
     "@prisma/client": "^6.19.0",

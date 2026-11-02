@@ -7,6 +7,8 @@ import tailwindcss from '@tailwindcss/vite';
 const target = process.env.API_PROXY || 'http://localhost:3001';
 
 export default defineConfig({
+  // /admin/ when the dashboard is published inside the Mini App project (npm run admin:publish)
+  base: process.env.ADMIN_BASE || '/',
   plugins: [react(), tailwindcss()],
   server: {
     host: 'localhost',
