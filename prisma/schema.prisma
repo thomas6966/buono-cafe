@@ -210,3 +210,12 @@ model OrderItem {
 
   @@index([orderId])
 }
+
+// Photos uploaded from the admin dashboard. Stored in the database because hosts like Render
+// have an ephemeral disk. Seeded menu photos are static files served by the Mini App itself.
+model Image {
+  id        String   @id @default(cuid())
+  mime      String
+  data      Bytes
+  createdAt DateTime @default(now())
+}

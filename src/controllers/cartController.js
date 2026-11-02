@@ -18,6 +18,14 @@ async function getMenu(req, res) {
   res.json(await Product.getPublicMenu());
 }
 
+// ---------- uploaded photos ----------
+async function getImage(req, res) {
+  const image = await Product.getImage(req.params.id);
+  if (!image) throw new HttpError(404, 'not_found');
+  res.set({ 'Content-Type': image.mime, 'Cache-Control': 'public, max-age=31536000, immutable' });
+  res.send(Buffer.from(image.data));
+}
+
 // ---------- profile ----------
 async function getMe(req, res) {
   const [addresses, favoriteIds] = await Promise.all([
@@ -104,6 +112,7 @@ async function cancelOrder(req, res) {
 
 module.exports = {
   getMenu,
+  getImage,
   getMe,
   updateMe,
   listAddresses,

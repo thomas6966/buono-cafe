@@ -8,6 +8,7 @@ const h = asyncHandler;
 
 // public
 router.get('/menu', h(cart.getMenu));
+router.get('/images/:id', h(cart.getImage));
 
 // everything below needs a validated Telegram user
 router.use(authenticate);

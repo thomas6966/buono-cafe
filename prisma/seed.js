@@ -9,13 +9,16 @@
 require('dotenv').config({ path: require('path').join(__dirname, '..', '.env') });
 const fs = require('fs');
 const path = require('path');
+const sharp = require('sharp');
 const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
 const snapshot = require('./data/menu.snapshot.json');
 const IMG_BASE = 'https://menu.scaninfo.uz/storage/load?id=';
 const UPLOADS = path.join(__dirname, '..', 'uploads');
-const PRODUCT_DIR = path.join(UPLOADS, 'products');
+const PRODUCT_DIR = path.join(UPLOADS, 'products'); // raw downloads (git-ignored cache)
+// Optimised photos live in the Mini App's public folder: the CDN serves them, no server disk needed.
+const MENU_DIR = path.join(__dirname, '..', 'client', 'public', 'menu');
 
 const CATEGORIES = {
   pasta: { slug: 'pasta', uz: 'Pasta', ru: 'Паста', icon: '🍝' },
@@ -95,6 +98,18 @@ async function download(id, file) {
   return false;
 }
 
+// 800px webp (~40 KB): fast on mobile data, sharp enough for the product modal
+async function optimize(src, dest) {
+  if (fs.existsSync(dest)) return true;
+  try {
+    await sharp(src).rotate().resize({ width: 800, withoutEnlargement: true }).webp({ quality: 78 }).toFile(dest);
+    return true;
+  } catch (err) {
+    console.warn('optimize failed:', path.basename(src), err.message);
+    return false;
+  }
+}
+
 async function mapLimit(items, limit, fn) {
   let i = 0;
   await Promise.all(
@@ -109,6 +124,7 @@ async function mapLimit(items, limit, fn) {
 
 async function main() {
   fs.mkdirSync(PRODUCT_DIR, { recursive: true });
+  fs.mkdirSync(MENU_DIR, { recursive: true });
 
   if (process.argv.includes('--reset-menu')) {
     console.log('Resetting menu tables...');
@@ -154,11 +170,14 @@ async function main() {
     const existing = await prisma.product.findUnique({ where: { externalId: p.id } });
 
     const imageFile = `${p.id}.webp`;
-    const ok = p.photo ? await download(p.photo, path.join(PRODUCT_DIR, imageFile)) : false;
+    const raw = path.join(PRODUCT_DIR, imageFile);
+    const ok = p.photo ? (await download(p.photo, raw)) && (await optimize(raw, path.join(MENU_DIR, imageFile))) : false;
+    const imageUrl = ok ? `/menu/${imageFile}` : null;
     if (!ok) photoFails++;
     if (existing) {
-      if (ok && !existing.imageUrl) {
-        await prisma.product.update({ where: { id: existing.id }, data: { imageUrl: `/uploads/products/${imageFile}` } });
+      // also migrates the old /uploads/products/... paths to the static /menu/... ones
+      if (ok && (!existing.imageUrl || existing.imageUrl.startsWith('/uploads/'))) {
+        await prisma.product.update({ where: { id: existing.id }, data: { imageUrl } });
       }
       return;
     }
@@ -193,7 +212,7 @@ async function main() {
         descUz: hideDesc ? '' : descUz,
         descRu: hideDesc ? '' : descRu,
         price,
-        imageUrl: ok ? `/uploads/products/${imageFile}` : null,
+        imageUrl,
         tags,
         isAvailable: p.is_available !== false,
         allowMilk: slug === 'coffee' && !/americano|espresso|frapp|frapper|glace|cacao|chocolate|raf/i.test(en),

@@ -71,6 +71,12 @@ async function start(ctx) {
   return ctx.reply(text, { parse_mode: 'Markdown', reply_markup: kb });
 }
 
+// Any other message in a private chat gets the same welcome + "open the menu" button.
+async function fallback(ctx) {
+  if (ctx.chat?.type !== 'private') return;
+  return start(ctx);
+}
+
 async function help(ctx) {
   const user = await User.upsertFromTelegram(ctx.from);
   return ctx.reply(tr(user.language).help);
@@ -121,4 +127,4 @@ async function setup() {
   }
 }
 
-module.exports = { start, help, chooseLanguage, setLanguage, notifyOrderCreated, notifyStatus, setup, orderNumber };
+module.exports = { start, fallback, help, chooseLanguage, setLanguage, notifyOrderCreated, notifyStatus, setup, orderNumber };

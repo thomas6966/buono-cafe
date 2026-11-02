@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { api, errText, money } from '../api';
+import { api, errText, imgUrl, money } from '../api';
 import { Field, Modal, PageTitle, TAG_LABEL, Toggle } from '../ui.jsx';
 
 const EMPTY_PRODUCT = {
@@ -68,7 +68,7 @@ function ProductForm({ initial, categories, onClose, onSaved }) {
         <div>
           <span className="mb-1.5 block text-[12px] font-bold uppercase tracking-wider text-muted">Rasm</span>
           <div className="flex items-center gap-3">
-            <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-surface-2">{f.imageUrl && <img src={f.imageUrl} className="h-full w-full object-cover" alt="" />}</div>
+            <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-surface-2">{f.imageUrl && <img src={imgUrl(f.imageUrl)} className="h-full w-full object-cover" alt="" />}</div>
             <input type="file" accept="image/jpeg,image/png,image/webp" className="text-sm text-muted file:mr-3 file:rounded-lg file:border-0 file:bg-surface-2 file:px-3 file:py-2 file:font-bold file:text-cream" onChange={(e) => upload(e.target.files?.[0])} />
           </div>
         </div>
@@ -256,7 +256,7 @@ export default function Menu() {
               <tbody>
                 {shown.map((p) => (
                   <tr key={p.id} className={p.isAvailable ? '' : 'opacity-60'}>
-                    <td className="w-16"><div className="h-12 w-12 overflow-hidden rounded-lg bg-surface-2">{p.imageUrl && <img src={p.imageUrl} loading="lazy" className="h-full w-full object-cover" alt="" />}</div></td>
+                    <td className="w-16"><div className="h-12 w-12 overflow-hidden rounded-lg bg-surface-2">{p.imageUrl && <img src={imgUrl(p.imageUrl)} loading="lazy" className="h-full w-full object-cover" alt="" />}</div></td>
                     <td><p className="font-bold">{p.nameUz}</p><p className="text-xs text-muted">{p.nameRu}</p></td>
                     <td className="text-muted">{p.category.nameUz}</td>
                     <td>

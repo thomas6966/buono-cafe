@@ -14,7 +14,9 @@
     "client:build": "npm --prefix client run build",
     "admin:dev": "npm --prefix admin run dev",
     "install:all": "npm install && npm --prefix client install && npm --prefix admin install",
-    "tunnel": "node scripts/tunnel.js"
+    "tunnel": "node scripts/tunnel.js",
+    "build": "prisma generate",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@prisma/client": "^6.19.0",
@@ -23,9 +25,13 @@
     "express": "^4.21.2",
     "grammy": "^1.30.0",
     "jsonwebtoken": "^9.0.2",
-    "multer": "^1.4.5-lts.1"
+    "multer": "^1.4.5-lts.1",
+    "sharp": "^0.33.5"
   },
   "devDependencies": {
     "prisma": "^6.19.0"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }

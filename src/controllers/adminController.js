@@ -1,8 +1,7 @@
 // Admin Web Dashboard API (localhost only): orders, menu CRUD, promos, settings.
 const crypto = require('crypto');
-const path = require('path');
-const fs = require('fs');
 const multer = require('multer');
+const sharp = require('sharp');
 const config = require('../config/default');
 const Product = require('../models/Product');
 const Order = require('../models/Order');
@@ -117,24 +116,29 @@ const getSettings = async (req, res) => res.json({ settings: await Product.getSe
 const saveSettings = async (req, res) => res.json({ settings: await Product.saveSettings(req.body || {}) });
 
 // ---------- image upload ----------
-const uploadDir = path.join(config.uploadsDir, 'products');
-fs.mkdirSync(uploadDir, { recursive: true });
-
-const EXT = { 'image/jpeg': '.jpg', 'image/png': '.png', 'image/webp': '.webp' };
+// Photos are resized and stored in the database (the host disk is ephemeral).
+const ALLOWED = new Set(['image/jpeg', 'image/png', 'image/webp']);
 const upload = multer({
-  storage: multer.diskStorage({
-    destination: uploadDir,
-    filename: (req, file, cb) => cb(null, `${Date.now()}-${crypto.randomBytes(4).toString('hex')}${EXT[file.mimetype]}`),
-  }),
-  limits: { fileSize: 5 * 1024 * 1024 },
-  fileFilter: (req, file, cb) => cb(EXT[file.mimetype] ? null : new HttpError(400, 'bad_image'), !!EXT[file.mimetype]),
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 8 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => cb(ALLOWED.has(file.mimetype) ? null : new HttpError(400, 'bad_image'), ALLOWED.has(file.mimetype)),
 }).single('image');
 
 function uploadImage(req, res, next) {
-  upload(req, res, (err) => {
+  upload(req, res, async (err) => {
     if (err) return next(err instanceof HttpError ? err : new HttpError(400, 'upload_failed'));
     if (!req.file) return next(new HttpError(400, 'no_file'));
-    res.status(201).json({ url: `/uploads/products/${req.file.filename}` });
+    try {
+      const data = await sharp(req.file.buffer)
+        .rotate()
+        .resize({ width: 1000, height: 1000, fit: 'inside', withoutEnlargement: true })
+        .webp({ quality: 80 })
+        .toBuffer();
+      const image = await Product.createImage('image/webp', data);
+      res.status(201).json({ url: `/api/client/images/${image.id}` });
+    } catch {
+      next(new HttpError(400, 'bad_image'));
+    }
   });
 }
 

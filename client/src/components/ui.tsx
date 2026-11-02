@@ -1,6 +1,7 @@
 import { useEffect, type ReactNode } from 'react';
 import { AnimatePresence, motion, useDragControls } from 'framer-motion';
 import { pushBack } from '../lib/tg';
+import { asset } from '../lib/api';
 import { useStore } from '../store';
 
 export function Logo({ size = 96 }: { size?: number }) {
@@ -147,7 +148,7 @@ export function Toast() {
 export function Img({ src, alt, fallback, className = '' }: { src: string | null; alt: string; fallback: string; className?: string }) {
   return src ? (
     <img
-      src={src}
+      src={asset(src) || undefined}
       alt={alt}
       loading="lazy"
       decoding="async"

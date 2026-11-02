@@ -157,6 +157,10 @@ const setProductAvailability = (id, isAvailable) =>
 
 const deleteProduct = (id) => prisma.product.delete({ where: { id } });
 
+// ---------- uploaded photos (stored in the database) ----------
+const createImage = (mime, data) => prisma.image.create({ data: { mime, data }, select: { id: true } });
+const getImage = (id) => prisma.image.findUnique({ where: { id: String(id) } });
+
 // ---------- admin: addons ----------
 const listAddons = () => prisma.addon.findMany({ orderBy: [{ kind: 'asc' }, { sortOrder: 'asc' }] });
 
@@ -189,6 +193,8 @@ module.exports = {
   updateProduct: invalidating(updateProduct),
   setProductAvailability: invalidating(setProductAvailability),
   deleteProduct: invalidating(deleteProduct),
+  createImage,
+  getImage,
   listAddons,
   createAddon: invalidating(createAddon),
   updateAddon: invalidating(updateAddon),

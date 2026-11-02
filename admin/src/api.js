@@ -1,5 +1,18 @@
 const KEY = 'buono-admin-token';
 
+// Backend origin: empty in local dev (Vite proxy); set VITE_API_URL on Vercel.
+const trimSlash = (s) => s.replace(/\/+$/, '');
+const API_URL = trimSlash(import.meta.env.VITE_API_URL || '');
+const CLIENT_URL = trimSlash(import.meta.env.VITE_CLIENT_URL || '');
+
+// Product photos: /menu/* live on the Mini App host, /api/* ones on the backend.
+export function imgUrl(url) {
+  if (!url) return '';
+  if (url.startsWith('/api/')) return API_URL + url;
+  if (url.startsWith('/menu/')) return CLIENT_URL + url;
+  return url;
+}
+
 export const getToken = () => localStorage.getItem(KEY);
 export const setToken = (t) => (t ? localStorage.setItem(KEY, t) : localStorage.removeItem(KEY));
 
@@ -16,7 +29,7 @@ export async function api(path, { method = 'GET', body, form } = {}) {
   const token = getToken();
   if (token) headers.Authorization = `Bearer ${token}`;
   if (body !== undefined) headers['Content-Type'] = 'application/json';
-  const res = await fetch(`/api/admin${path}`, {
+  const res = await fetch(`${API_URL}/api/admin${path}`, {
     method,
     headers,
     body: form ?? (body !== undefined ? JSON.stringify(body) : undefined),

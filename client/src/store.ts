@@ -63,10 +63,21 @@ export const useStore = create<State>()(
       async boot() {
         set({ bootState: 'loading' });
         try {
-          const [menu, me] = await Promise.all([
-            api<Menu>('/menu'),
-            api<{ user: User; addresses: Address[]; favoriteIds: number[] }>('/me'),
-          ]);
+          // a free-tier server may still be waking up: retry network failures a few times
+          let loaded: [Menu, { user: User; addresses: Address[]; favoriteIds: number[] }] | null = null;
+          for (let attempt = 0; attempt < 4 && !loaded; attempt++) {
+            try {
+              loaded = await Promise.all([
+                api<Menu>('/menu'),
+                api<{ user: User; addresses: Address[]; favoriteIds: number[] }>('/me'),
+              ]);
+            } catch (e: any) {
+              if (e?.code !== 'network' && !(e?.status >= 502 && e?.status <= 504)) throw e;
+              await new Promise((r) => setTimeout(r, 2500));
+            }
+          }
+          if (!loaded) throw new Error('offline');
+          const [menu, me] = loaded;
           const { langChosen } = get();
           // drop cart lines whose product disappeared from the menu
           const ids = new Set(menu.categories.flatMap((c) => c.products.map((p) => p.id)));

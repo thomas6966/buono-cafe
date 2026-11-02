@@ -7,6 +7,8 @@ function registerBotRoutes(bot) {
   bot.command('help', botController.help);
   bot.command('lang', botController.chooseLanguage);
   bot.callbackQuery(/^lang:(uz|ru)$/, botController.setLanguage);
+  // keep last: every other message in a private chat gets the "open the menu" button
+  bot.on('message', botController.fallback);
 }
 
 module.exports = registerBotRoutes;
